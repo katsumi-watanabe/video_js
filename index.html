@@ -29,16 +29,24 @@
         </p>
     </video>
 
+    <div>
+        <button id="prev-button">前ページ</button>
+        <button id="next-button">次ページ</button>
+    </div>
+
+
     <div id="thumbnail-container">
         <img id="thumbnail1"  height="">
         <img id="thumbnail2"  height="">
         <img id="thumbnail3"  height="">
+        <img id="thumbnail4"  height="">
     </div>
     <!-- 表示させるものを変更する -->
     <div>
         <img id="image1" src="/common/image/1.png" alt="" width="600px" height="">
         <img id="image2" src="/common/image/2.png" alt="" width="600px" height="" style="display: none;">
         <img id="image3" src="/common/image/3.png" alt="" width="600px" height="" style="display: none;">
+        <img id="image4" src="/common/image/4.png" alt="" width="600px" height="" style="display: none;">
     </div>
 
     <script src="https://vjs.zencdn.net/8.5.2/video.min.js"></script>
@@ -49,9 +57,16 @@
         const imageTimeData = [
             ["/common/image/1.png", 0],  // 0秒で表示を開始
             ["/common/image/2.png", 10], // 10秒で表示を開始
-            ["/common/image/3.png", 15]  // 15秒で表示を開始
+            ["/common/image/3.png", 15], // 15秒で表示を開始
+            ["/common/image/4.png", 50]  // 15秒で表示を開始
         ];
 
+        // 画像とビデオを更新する関数
+        function updateImageAndVideo() {
+            const [, time] = imageTimeData[currentIndex];
+            videoElem.currentTime = time ? time : 0;
+            videoElem.play();
+        }
 
         // サムネイルコンテナにサムネイルを追加
         const thumbnailContainer = document.getElementById("thumbnail-container");
@@ -71,10 +86,20 @@
         }
 
         // timeupdateイベントで表示する画像を切り替える
+        // メディア要素の再生位置が更新されるたびに発生します。
+        // timeupdateイベントで表示する画像を切り替える
         videoElem.addEventListener("timeupdate", function() {
             const currentTime = videoElem.currentTime;
             console.log(currentTime);
-
+            
+            // 現在のインデックスを動的に設定
+            for (let i = 0; i < imageTimeData.length; i++) {
+                if (currentTime >= imageTimeData[i][1]) {
+                    currentIndex = i;
+                    console.log(currentIndex);
+                }
+            }
+            
             imageTimeData.forEach(([path, startTime], index) => {
                 const imgElem = document.getElementById(`image${index + 1}`);
                 const nextStartTime = (index < imageTimeData.length - 1) ? imageTimeData[index + 1][1] : Infinity;
@@ -85,6 +110,18 @@
                     imgElem.style.display = "none";
                 }
             });
+        });
+
+        // 前ページボタン
+        document.getElementById("prev-button").addEventListener("click", function() {
+            currentIndex = Math.max(0, currentIndex - 1);
+            updateImageAndVideo();
+        });
+
+        // 次ページボタン
+        document.getElementById("next-button").addEventListener("click", function() {
+            currentIndex = Math.min(imageTimeData.length - 1, currentIndex + 1);
+            updateImageAndVideo();
         });
 
     </script>
