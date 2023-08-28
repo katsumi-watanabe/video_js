@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link href="https://vjs.zencdn.net/8.5.2/video-js.css" rel="stylesheet" />
+</head>
+<body>
+    <p>test</p>
+    <video
+        id="my-video"
+        class="video-js"
+        controls
+        preload="auto"
+        width="640"
+        height="264"
+        poster="/common/image/test.png"
+        data-setup="{}"
+    >
+        <source src="/common/movie/oceans.mp4" type="video/mp4" />
+        <!-- <source src="MY_VIDEO.webm" type="video/webm" /> -->
+        <p class="vjs-no-js">
+            To view this video please enable JavaScript, and consider upgrading to a
+            web browser that
+            <a href="https://videojs.com/html5-video-support/" target="_blank"
+            >supports HTML5 video</a
+            >
+        </p>
+    </video>
+
+    <div id="thumbnail-container">
+        <img id="thumbnail1"  height="">
+        <img id="thumbnail2"  height="">
+        <img id="thumbnail3"  height="">
+    </div>
+    <!-- 表示させるものを変更する -->
+    <div>
+        <img id="image1" src="/common/image/1.png" alt="" width="600px" height="">
+        <img id="image2" src="/common/image/2.png" alt="" width="600px" height="" style="display: none;">
+        <img id="image3" src="/common/image/3.png" alt="" width="600px" height="" style="display: none;">
+    </div>
+
+    <script src="https://vjs.zencdn.net/8.5.2/video.min.js"></script>
+    <script>
+        const videoElem = document.getElementById("my-video");
+
+        // 画像のパスと表示する時間を配列で持つ
+        const imageTimeData = [
+            ["/common/image/1.png", 0],  // 0秒で表示を開始
+            ["/common/image/2.png", 10], // 10秒で表示を開始
+            ["/common/image/3.png", 15]  // 15秒で表示を開始
+        ];
+
+
+        // サムネイルコンテナにサムネイルを追加
+        const thumbnailContainer = document.getElementById("thumbnail-container");
+        imageTimeData.forEach(([path, _], index) => {
+            const thumbnail = document.createElement("img");
+            thumbnail.src = path;
+            thumbnail.width = 200;
+            thumbnail.addEventListener("click", () => thumbnailClicked(index));
+            thumbnailContainer.appendChild(thumbnail);
+        });
+
+        // サムネイルがクリックされたときの処理
+        function thumbnailClicked(index) {
+            const [, time] = imageTimeData[index];
+            videoElem.currentTime = time ? time : 0;
+            videoElem.play();
+        }
+
+        // timeupdateイベントで表示する画像を切り替える
+        videoElem.addEventListener("timeupdate", function() {
+            const currentTime = videoElem.currentTime;
+            console.log(currentTime);
+
+            imageTimeData.forEach(([path, startTime], index) => {
+                const imgElem = document.getElementById(`image${index + 1}`);
+                const nextStartTime = (index < imageTimeData.length - 1) ? imageTimeData[index + 1][1] : Infinity;
+
+                if (currentTime >= startTime && currentTime < nextStartTime) {
+                    imgElem.style.display = "block";
+                } else {
+                    imgElem.style.display = "none";
+                }
+            });
+        });
+
+    </script>
+</body>
+</html>
